@@ -15,6 +15,12 @@ Clica na imagem normalmente
 python $caminhoScript clicar_na_imagem $caminhoImagem --direcao center --confidence 0.9 --tentativas 5 --tempo_entre_tentativas 2 --intervalo_maximo 30
 ```
 
+## Clicar nas Imagens
+Clica na imagem normalmente
+```powershell
+python $caminhoScript clicar_nas_imagens $caminhoImagem --titulo_janela "TituloDaJanela" --tempo_espera 1 --direcao center --confidence 0.9 --tentativas 5 --tempo_entre_tentativas 2 --intervalo_maximo 30
+```
+
 ## Foca na janela e depois clica na imagem
 Foca na janela e depois efetua o clique
 ```powershell
@@ -44,6 +50,7 @@ Obtém as coordenadas das imagens encontradas.
 ```powershell
 python $caminhoScript obter_posicoes $caminhoImagem --titulo_janela "TituloDaJanela" --confidence 0.9 --tentativas 5 --tempo_entre_tentativas 2 --intervalo_maximo 30
 ```
+
 
 
 ## Comandos Disponíveis
