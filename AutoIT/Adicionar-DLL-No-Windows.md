@@ -7,5 +7,5 @@ Encontre o arquivo `AutoItX3.dll`
 
 Abra o CMD como admin e aplique o comando abaixo
 ``` bash
-regasm.exe "C:\Program Files (x86)\AutoIt3\AutoItX\AutoItX3.dll"
+regsvr32 "C:\Program Files (x86)\AutoIt3\AutoItX\AutoItX3.dll"
 ```
