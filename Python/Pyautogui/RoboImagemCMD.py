@@ -1,42 +1,15 @@
 import pyautogui, os,autoit,ocrspace,re,pytesseract,cv2
-from datetime import datetime
 import time
-import pandas as pd
-import psutil
-from pywinauto.application import Application
 import os
 import time
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.edge.service import Service as EdgeService
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 import pyautogui
 import cv2
-import numpy as np
-
-def iniciar_edge():
-    # Configura o serviço do Edge WebDriver
-    service = EdgeService(EdgeChromiumDriverManager().install())
-    # service = EdgeService(executable_path=webdriver_path)
-
-    # Opções para o Edge
-    options = webdriver.EdgeOptions()
-    options.use_chromium = True
-    options.add_experimental_option("detach", True)
-    
-    # Inicia o driver do Edge
-    driver = webdriver.Edge(service=service, options=options)
-
-    # Abre a URL desejada
-    driver.get('https://edi.sawluznet.com/RDWeb/Pages/en-US/login.aspx?ReturnUrl=/RDWeb/Pages/en-US/Default.aspx')
-
-    driver.find_element(By.CSS_SELECTOR, 'input#DomainUserName').send_keys('darlei.damaceno@sawluznet.com')
-    driver.find_element(By.CSS_SELECTOR, 'input#UserPass').send_keys('Pirelli@123!')
-    driver.find_element(By.CSS_SELECTOR, 'input#UserPass').send_keys(Keys.ENTER)
-    driver.find_element(By.XPATH, "//div[@class='tswa_ttext' and contains(text(),'Automotivo')]").click()
-    return driver
-
+import argparse
+from pywinauto.application import Application
 
 def clicar_na_imagem(caminho_img, direcao='center', confidence=0.9, tentativas=5, tempo_entre_tentativas=2, intervalo_maximo=30):
     """
@@ -59,11 +32,62 @@ def clicar_na_imagem(caminho_img, direcao='center', confidence=0.9, tentativas=5
                 
                 if direcao == 'center':
                     direcao = pyautogui.center(localizacao)
+                    pyautogui.click(direcao)
                 elif direcao == 'rigth':
                     direcao = pyautogui.rightClick(localizacao)
                 elif direcao == 'left':
                     direcao = pyautogui.leftClick(localizacao)
-                pyautogui.click(direcao)
+                else:
+                    pyautogui.click(direcao)
+                print("Clique efetuado!")
+                return True
+        except pyautogui.ImageNotFoundException:
+            print(f"Tentativa {tentativa + 1}: Imagem não encontrada. Aguardando {tempo_entre_tentativas} segundos para tentar novamente...")
+        
+        time.sleep(tempo_entre_tentativas)
+        tentativa += 1
+    
+    print("Imagem não encontrada após várias tentativas.")
+    return False
+
+
+def clicar_na_imagem_focus_janela(caminho_img, janela_titulo_regex, direcao='center', confidence=0.9, tentativas=5, tempo_entre_tentativas=2, intervalo_maximo=30):
+    """
+    Tenta localizar e clicar em uma imagem na tela, focando na janela correta se necessário.
+    
+    :param caminho_img: Caminho para a imagem a ser localizada.
+    :param direcao: Direção do clique ('center', 'right', 'left'). Padrão é 'center'.
+    :param confidence: Nível de confiança para localizar a imagem. Valor entre 0 e 1.
+    :param tentativas: Número de tentativas para localizar a imagem.
+    :param tempo_entre_tentativas: Tempo de espera (em segundos) entre cada tentativa.
+    :param intervalo_maximo: Tempo máximo (em segundos) para tentar localizar a imagem antes de desistir.
+    :param janela_titulo_regex: Regex para o título da janela a ser focada antes de clicar. Padrão é None.
+    :return: True se a imagem foi encontrada e clicada, False caso contrário.
+    """
+    inicio = time.time()
+    tentativa = 0
+
+    # Focar na janela específica se o regex do título for fornecido
+    if janela_titulo_regex:
+        app = Application().connect(title_re=janela_titulo_regex)
+        janela = app.window(title_re=janela_titulo_regex)
+        janela.set_focus()
+
+    while tentativa < tentativas and (time.time() - inicio) < intervalo_maximo:
+        try:
+            localizacao = pyautogui.locateOnScreen(caminho_img, confidence=confidence)
+            if localizacao:
+                print(f"Imagem encontrada na tentativa {tentativa + 1} na localização:", localizacao)
+                
+                if direcao == 'center':
+                    direcao = pyautogui.center(localizacao)
+                    pyautogui.click(direcao)
+                elif direcao == 'right':
+                    pyautogui.rightClick(localizacao)
+                elif direcao == 'left':
+                    pyautogui.leftClick(localizacao)
+                else:
+                    pyautogui.click(direcao)
                 print("Clique efetuado!")
                 return True
         except pyautogui.ImageNotFoundException:
@@ -123,48 +147,6 @@ def esperar_imagem_aparecer(caminho_img, confidence=0.9, tentativas=5, tempo_ent
     print("Imagem não encontrada após várias tentativas.")
     return False
 
-
-def ler_coluna_excel(caminho_arquivo):
-    """
-    Lê os dados da coluna D a partir da linha 2 de uma planilha.
-    
-    :param caminho_arquivo: Caminho para o arquivo da planilha (ex: 'dados.xlsx').
-    :return: Lista de valores da coluna D.
-    """
-    # Lê a planilha a partir da linha 2 (índice 1)
-    df = pd.read_excel(caminho_arquivo, skiprows=1)
-    
-    # Obtém a coluna D (índice 3, já que o índice começa em 0)
-    coluna_d = df.iloc[:, 3]
-    
-    # Remove valores NaN (em branco)
-    coluna_d_limpa = coluna_d.dropna().tolist()
-    
-    return coluna_d_limpa
-
-
-def reiniciar_chrome(caminho_chrome, url):
-    # Fechar todas as instâncias do Chrome
-    for process in psutil.process_iter():
-        if process.name() == "chrome.exe":
-            try:
-                process.terminate()
-            except:
-                pass
-    
-    # Esperar um pouco para garantir que todos os processos sejam terminados
-    time.sleep(3)
-    
-    # Abrir o Chrome no link específico
-    autoit.run(caminho_chrome)
-
-    try:
-        clicar_na_imagem('inputUrlChrome.PNG', 0.8, 5, 2, 30)
-    except:
-        clicar_na_imagem('inputUrlChrome1.png', 0.8, 5, 2, 30)
-
-    escrever(value='https://consultadanfe.com/', tipo='a', intervalo=1000, enter=True)
-
     
 def imagem_presente(image_path, confidence=0.9):
     """
@@ -183,7 +165,7 @@ def imagem_presente(image_path, confidence=0.9):
     except Exception as e:
         print(f"Erro ao tentar localizar a imagem: {e}")
         return False
-
+    
 
 def clicar_nas_imagens(imagem_path, janela_titulo_regex, tempo_espera, direcao='center', confidence=0.9, tentativas=5, tempo_entre_tentativas=2, intervalo_maximo=30):
     """
@@ -246,21 +228,20 @@ def clicar_nas_imagens(imagem_path, janela_titulo_regex, tempo_espera, direcao='
 
 def obter_posicoes(imagem_path, janela_titulo_regex=None, confidence=0.9, tentativas=5, tempo_entre_tentativas=2, intervalo_maximo=30):
     """
-    Tenta localizar todas as posições de uma imagem na tela e retorna suas coordenadas.
-    
+    Tenta localizar todas as posições de uma imagem na tela e retorna suas coordenadas em formato JSON.
+
     :param imagem_path: Caminho para a imagem a ser localizada.
     :param janela_titulo_regex: Regex para o título da janela a ser focada antes de tentar localizar a imagem. Padrão é None.
     :param confidence: Nível de confiança para localizar a imagem. Valor entre 0 e 1.
     :param tentativas: Número de tentativas para localizar a imagem.
     :param tempo_entre_tentativas: Tempo de espera (em segundos) entre cada tentativa.
     :param intervalo_maximo: Tempo máximo (em segundos) para tentar localizar a imagem antes de desistir.
-    :return: Lista de coordenadas das posições encontradas.
+    :return: JSON string com as coordenadas das posições encontradas.
     """
     inicio = time.time()
     tentativa = 0
     coordenadas = []
 
-    # Focar na janela específica se o regex do título for fornecido
     if janela_titulo_regex:
         app = Application().connect(title_re=janela_titulo_regex)
         janela = app.window(title_re=janela_titulo_regex)
@@ -268,7 +249,6 @@ def obter_posicoes(imagem_path, janela_titulo_regex=None, confidence=0.9, tentat
 
     while tentativa < tentativas and (time.time() - inicio) < intervalo_maximo:
         posicoes = list(pyautogui.locateAllOnScreen(imagem_path, confidence=confidence))
-
         if not posicoes:
             tentativa += 1
             time.sleep(tempo_entre_tentativas)
@@ -276,17 +256,89 @@ def obter_posicoes(imagem_path, janela_titulo_regex=None, confidence=0.9, tentat
 
         for posicao in posicoes:
             posicao_central = pyautogui.center(posicao)
-            coordenadas.append((posicao_central.x, posicao_central.y))
+            coordenadas.append({"x": posicao_central.x, "y": posicao_central.y})
 
         if coordenadas:
-            return coordenadas
+            return json.dumps(coordenadas)
 
         tentativa += 1
 
-    return coordenadas
-
-        
+    return json.dumps(coordenadas)
 
 
-posicoes = obter_posicoes(r"C:\TEMP\img1.png", r'Pasta1')
-print(posicoes)
+def main():
+    parser = argparse.ArgumentParser(description="Automação com pyautogui e autoit")
+    subparsers = parser.add_subparsers(dest='command')
+
+    clicar_nas_imagens_parser = subparsers.add_parser('clicar_nas_imagens')
+    clicar_nas_imagens_parser.add_argument('imagem_path')
+    clicar_nas_imagens_parser.add_argument('--titulo_janela', type=str, default=None)
+    clicar_nas_imagens_parser.add_argument('--tempo_espera', type=int, required=True)
+    clicar_nas_imagens_parser.add_argument('--direcao', default='center')
+    clicar_nas_imagens_parser.add_argument('--confidence', type=float, default=0.9)
+    clicar_nas_imagens_parser.add_argument('--tentativas', type=int, default=5)
+    clicar_nas_imagens_parser.add_argument('--tempo_entre_tentativas', type=int, default=2)
+    clicar_nas_imagens_parser.add_argument('--intervalo_maximo', type=int, default=30)
+
+    clicar_na_imagem_parser = subparsers.add_parser('clicar_na_imagem')
+    clicar_na_imagem_parser.add_argument('caminho_img')
+    clicar_na_imagem_parser.add_argument('--direcao', default='center')
+    clicar_na_imagem_parser.add_argument('--confidence', type=float, default=0.9)
+    clicar_na_imagem_parser.add_argument('--tentativas', type=int, default=5)
+    clicar_na_imagem_parser.add_argument('--tempo_entre_tentativas', type=int, default=2)
+    clicar_na_imagem_parser.add_argument('--intervalo_maximo', type=int, default=30)
+
+    clicar_na_imagem_focus_janela_parse = subparsers.add_parser('clicar_na_imagem_focus_janela')
+    clicar_na_imagem_focus_janela_parse.add_argument('caminho_img')
+    clicar_na_imagem_focus_janela_parse.add_argument('--titulo_janela')
+    clicar_na_imagem_focus_janela_parse.add_argument('--direcao', default='center')
+    clicar_na_imagem_focus_janela_parse.add_argument('--confidence', type=float, default=0.9)
+    clicar_na_imagem_focus_janela_parse.add_argument('--tentativas', type=int, default=5)
+    clicar_na_imagem_focus_janela_parse.add_argument('--tempo_entre_tentativas', type=int, default=2)
+    clicar_na_imagem_focus_janela_parse.add_argument('--intervalo_maximo', type=int, default=30)
+
+    escrever_parser = subparsers.add_parser('escrever')
+    escrever_parser.add_argument('value')
+    escrever_parser.add_argument('--tipo', default='a')
+    escrever_parser.add_argument('--intervalo', type=float, default=0)
+    escrever_parser.add_argument('--enter', action='store_true')
+
+    esperar_parser = subparsers.add_parser('esperar_imagem_aparecer')
+    esperar_parser.add_argument('caminho_img')
+    esperar_parser.add_argument('--confidence', type=float, default=0.9)
+    esperar_parser.add_argument('--tentativas', type=int, default=5)
+    esperar_parser.add_argument('--tempo_entre_tentativas', type=int, default=2)
+    esperar_parser.add_argument('--intervalo_maximo', type=int, default=30)
+
+    imagem_presente_parser = subparsers.add_parser('imagem_presente')
+    imagem_presente_parser.add_argument('image_path')
+    imagem_presente_parser.add_argument('--confidence', type=float, default=0.9)
+
+    obter_posicoes_parser = subparsers.add_parser('obter_posicoes')
+    obter_posicoes_parser.add_argument('imagem_path')
+    obter_posicoes_parser.add_argument('--titulo_janela', type=str, default=None)
+    obter_posicoes_parser.add_argument('--confidence', type=float, default=0.9)
+    obter_posicoes_parser.add_argument('--tentativas', type=int, default=5)
+    obter_posicoes_parser.add_argument('--tempo_entre_tentativas', type=int, default=2)
+    obter_posicoes_parser.add_argument('--intervalo_maximo', type=int, default=30)
+
+    args = parser.parse_args()
+
+    if args.command == 'clicar_na_imagem':
+        clicar_na_imagem(args.caminho_img, args.direcao, args.confidence, args.tentativas, args.tempo_entre_tentativas, args.intervalo_maximo)
+    elif args.command == 'clicar_nas_imagens':
+        clicar_nas_imagens(args.imagem_path, args.titulo_janela, args.tempo_espera, args.direcao, args.confidence, args.tentativas, args.tempo_entre_tentativas, args.intervalo_maximo)
+    elif args.command == 'escrever':
+        escrever(args.value, args.tipo, args.intervalo, args.enter)
+    elif args.command == 'esperar_imagem_aparecer':
+        esperar_imagem_aparecer(args.caminho_img, args.confidence, args.tentativas, args.tempo_entre_tentativas, args.intervalo_maximo)
+    elif args.command == 'imagem_presente':
+        imagem_presente(args.image_path, args.confidence)
+    elif args.command == 'obter_posicoes':
+        coordenadas = obter_posicoes(args.imagem_path, args.titulo_janela, args.confidence, args.tentativas, args.tempo_entre_tentativas, args.intervalo_maximo)
+        print(coordenadas)
+    elif args.command == 'clicar_na_imagem_focus_janela':
+        coordenadas = clicar_na_imagem_focus_janela(args.caminho_img, args.titulo_janela, args.direcao, args.confidence, args.tentativas, args.tempo_entre_tentativas, args.intervalo_maximo)
+
+if __name__ == "__main__":
+    main()
