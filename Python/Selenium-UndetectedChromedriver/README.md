@@ -6,4 +6,4 @@
 [Abrir navegador](abrir-navegador.py)
 
 ## Abrir navegador normalmente para salvar PDF
-[Abrir navegador](abrir-navegador-salvar-pdf.py)
+[Abrir navegador para salvar o PDF](abrir-navegador-salvar-pdf.py)
