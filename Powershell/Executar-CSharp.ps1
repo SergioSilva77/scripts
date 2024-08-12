@@ -1,7 +1,3 @@
-# Chamar script C# dentro do PowerShell
-
-Podemos usar qualquer código, por exemplo, colocar dentro de uma variável:
-```csharp
 $cSource = @'
 using System;
 using System.Drawing;
@@ -77,5 +73,3 @@ Para chamar o nosso script, precisamos referenciar o que esse script está chama
 ```csharp
 Add-Type -TypeDefinition $cSource -ReferencedAssemblies System.Windows.Forms,System.Drawing
 [Clicker]::LeftClickAtPoint($x,$y);[Clicker]::LeftClickAtPoint($x,$y)
-```
-

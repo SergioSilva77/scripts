@@ -1,7 +1,3 @@
-# Escolhendo um certificado
-
-É necessário ter todas as dlls necessárias
-```powershell
 chcp 1252
 
 Add-Type -Path "C:\flaUi\Libs\FlaUI.UIA3.dll"
@@ -127,5 +123,3 @@ while ($counter -lt 8) {
     [System.Windows.Forms.SendKeys]::SendWait("{DOWN}")
     $counter++
 }
-
-```
