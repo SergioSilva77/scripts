@@ -2,8 +2,8 @@ import deathbycaptcha
 import json 
 # Put your DBC account username and password here.
 def quebra_captcha():
-    username = "4automation"
-    password = "@SERVOPa123@"
+    username = ""
+    password = ""
     # you can use authtoken instead of user/password combination
     # activate and get the authtoken from DBC users panel
     # authtoken = "authtoken"
