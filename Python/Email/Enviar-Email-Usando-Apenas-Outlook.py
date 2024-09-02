@@ -28,8 +28,8 @@ def send_email(account_name, to, subject, body):
     mail.Send()
 
 # Exemplo de uso
-conta_nome = "sergio.souza@emktecnologia.com.br"  # Nome da conta conforme aparece no Outlook
-destinatario = "sergio.souza@emktecnologia.com.br"
+conta_nome = "email@email"  # Nome da conta conforme aparece no Outlook
+destinatario = "email@email"
 assunto = "Assunto do e-mail"
 corpo = "Corpo do e-mail"
 
