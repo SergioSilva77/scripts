@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 SERVICE_ACCOUNT_FILE = 'credentials.json'
-SAMPLE_SPREADSHEET_ID = "1em7-EoAmnKrObpR3t3XiyOBSQ7tgByOmNciJQMzeqN4"
+SAMPLE_SPREADSHEET_ID = "aaaaaaaaaa"
 SAMPLE_RANGE_NAME = "RPAs!A1:B1"
 
 credentials = service_account.Credentials.from_service_account_file(

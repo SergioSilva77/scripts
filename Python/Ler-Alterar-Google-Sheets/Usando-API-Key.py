@@ -10,7 +10,7 @@ from googleapiclient.errors import HttpError
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 # The ID and range of a sample spreadsheet.
-SAMPLE_SPREADSHEET_ID = "1em7-EoAmnKrObpR3t3XiyOBSQ7tgByOmNciJQMzeqN4"
+SAMPLE_SPREADSHEET_ID = "aaaaaaaaa"
 SAMPLE_RANGE_NAME = "RPAs!A1:B1"
 
 
