@@ -1,0 +1,75 @@
+import logo from './logo.svg';
+import './App.css';
+import HelloWorld from './components/HelloWorld';
+import Example01 from './components/Example01';
+import Example02 from './components/Example02';
+import Example04 from './components/Example04';
+import Example05 from './components/Example05';
+import Example06 from './components/Example06';
+import Evento from './components/Evento';
+import Forms from './components/Forms';
+import FormUserState from './components/FormUserState';
+import EventoPai from './components/eventos/EventoPai';
+import Condicional from './components/Condicional';
+import Lista from './components/Lista';
+import { useState } from 'react';
+import SeuNome from './components/SeuNome';
+import Saudacao from './components/Saudacao';
+import MainRoutes from './components/MainRoutes';
+
+
+
+function App() {
+  // abaixo estou definindo o useState para que os componentes filhos tenham acesso a esse mesmo usestate
+  // um exemplo de componente que está utilizando esse usestate é o "SeuNome"
+  const [nm, setNome] = useState()
+  const nome = 'Sergio'
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <HelloWorld />
+        <Example01 nome="Sérgio" />
+        <Example02 nome="Sergio" idade="12" sexo="masculino" />
+        <Example04 />
+        <Example05 />
+        <Example06 marca="oiii" ano_lancamento={123} />
+        <Example06 />
+        <Evento numero={123} />
+        <Forms usuario='Sérgio' />
+        <FormUserState />
+        <EventoPai />
+        {/* <Example07/> */}
+        <Condicional />
+        <Lista />
+        <SeuNome setNome={setNome}/>
+        <Saudacao nome={nm}/>
+
+        <MainRoutes />
+
+        {true && ( // quando a condição é true, é exibido tudo que está dentro do parenteses
+          <div>Verdadeeeeeeeeeeeeeeeeeeeeeeeeeee</div>
+        )}
+
+
+        <h1>
+          {nome}
+        </h1>
+        <p>
+          Edit <code>src/App.js</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
+  );
+}
+
+export default App;
