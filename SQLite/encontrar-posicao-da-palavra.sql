@@ -1,0 +1,1 @@
+select instr('sergio souz@a','@')
