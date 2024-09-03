@@ -1,0 +1,1 @@
+new WebDriverWait(driver, TimeSpan.FromSeconds(2)).Until(ExpectedConditions.ElementIsVisible(By.XPath("xpath")));

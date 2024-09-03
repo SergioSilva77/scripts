@@ -1,0 +1,18 @@
+public async static Task<string> ObterQuery(string endpoint)
+{
+    var client = new HttpClient();
+    var request = new HttpRequestMessage(HttpMethod.Get, $"{endpoint}/Robo/obter/query");
+    var response = await client.SendAsync(request);
+    response.EnsureSuccessStatusCode();
+    string jsonResultado = await response.Content.ReadAsStringAsync();
+    var status = JObject.Parse(jsonResultado)["status"].ToString();
+    var query = JObject.Parse(jsonResultado)["query"].ToString();
+    if (status != "vazia")
+    {
+        return query;
+    }
+    else
+    {
+        return null;
+    }
+}
