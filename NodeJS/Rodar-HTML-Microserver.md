@@ -1,10 +1,22 @@
-vc precisa instalar
+Você precisa instalar
 
+```
 npm i live-server
+```
+
+Depois digitar o comando no terminal
+```
 live-server
+```
 
-ou
+ou instalar
 
+```
 npm i http-server
+```
+
+Depois digitar o comando no terminal
+```
 http-server
+```
 

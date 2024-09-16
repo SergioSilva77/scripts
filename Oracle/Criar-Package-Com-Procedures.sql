@@ -1,0 +1,11 @@
+CREATE OR REPLACE PACKAGE PACOTE_EXEMPLO IS
+  PROCEDURE Inserir(
+    chave VARCHAR2,
+    valor VARCHAR2
+  );
+  
+  PROCEDURE Deletar(
+    id NUMBER
+  );
+END PACOTE_EXEMPLO;
+/
